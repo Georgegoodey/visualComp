@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Visual Computing Lab 1</title>
+        <style>
+
+        </style>
+    </head>
+    <body>
+        <script type="module">
+            import * as THREE from "https://web.cs.manchester.ac.uk/three/three.js-master/build/three.module.js";
+            var scene, camera, renderer, mesh;
+            initialise();
+            animate();
+
+            function initialise(){
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerWidth, 0.1, 1000);
+                // The four arguments are the fov, aspect, near and far values
+                // The fov or field of view argument is the vertical fov from top to bottom measured in degrees
+                // The aspect argument is the aspect ratio of the camera where 1 is a square
+                // The near and far arguments are the values for the camera near and far planes
+                // Only things within their range are shown by the camera
+                // Changing fov makes the cube appear closer or further away as the things within the fov are scaled to fit
+                // Changing aspect squashes the cube, a decrease flattening and an increase thinning
+                // Decreasing far will cause the back of the cube to disapear and increasing near removes the front
+                camera.position.z = 5;
+                // The purpose of changing the z value is so that the camera is not at the origin so that you can see the cube properly
+                // Increasing the z moves the camera further away from the origin and the cube, decreasing it moves you closer
+                renderer = new THREE.WebGLRenderer();
+                renderer.setClearColor(0x000000, 1.0);
+                renderer.setSize( window.innerWidth, window.innerHeight );
+                // Changing the size of the renderer changes the size of the container box on the webpage
+                document.body.appendChild( renderer.domElement );
+                shaderCube();
+            }
+
+            function shaderCube(){
+                var geometry = new THREE.BoxGeometry(1,1,1);
+                // Changing the values in box geometry changes the dimensions of the cube
+                // When they are all the same it appears as a cube but it can be any size cuboid
+                // The three values are the width, height and depth of the shape
+                var material = new THREE.ShaderMaterial({
+                    fragmentShader: fragmentShader(),
+                    vertexShader: vertexShader(),
+                });
+                mesh = new THREE.Mesh(geometry, material);
+                scene.add(mesh);
+            }
+
+            function animate(){
+                renderer.render(scene, camera);
+                requestAnimationFrame(animate);
+                mesh.rotation.x += 0.011;
+                mesh.rotation.y += 0.013;
+                // I could speed up the motion of the cube by increasing the rotation increments
+                // so that they rotate more on each frame
+            }
+
+            function vertexShader(){
+                return `
+                    vec4 p;
+                    varying vec3 vposInterpolated;
+
+                    void main() {
+                        p = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                        gl_Position = p;
+                        vposInterpolated = p.xyz;
+                    }
+                `
+            }
+
+            function fragmentShader(){
+                return `
+                    varying vec3 vposInterpolated;
+
+                    void main(){
+                        gl_FragColor = vec4(vposInterpolated, 1.0);
+                    }
+                `
+            }// I can change the colour of the cuboid by changing the code in the fragment shader
+            // Such as subracting a value from vposInterpolated makes the shape more blue
+            // There are lots of ways to change the colour using the fragment shader using glsl
+        </script>
+    </body>
+</html>

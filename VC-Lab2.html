@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Visual Computing Lab 1</title>
+        <style>
+        </style>
+    </head>
+    <body>
+        <script type="module">
+            import * as THREE from "https://web.cs.manchester.ac.uk/three/three.js-master/build/three.module.js";
+            
+            var scene, camera, renderer;
+            init();
+            // animate();
+
+            function init(){
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerWidth, 0.1, 10000);
+                camera.position.x = 0;
+                camera.position.y = 30;
+                camera.position.z = 500;
+                renderer = new THREE.WebGLRenderer();
+                renderer.setClearColor(0x000000, 1.0);
+                renderer.setSize( window.innerWidth, window.innerHeight );
+                document.body.appendChild( renderer.domElement );
+                // shaderCube();
+            }
+
+            // Sun
+            var sunGeometry, sunMaterial, sunMesh;
+            sunGeometry = new THREE.SphereGeometry(109, 400, 200); 
+            sunMaterial = new THREE.MeshStandardMaterial(
+                { 
+                emissive: 0xffd700, 
+            //      emissiveMap: texture, 
+                emissiveIntensity: 1, 
+                wireframe: false 
+                } 
+            ); 
+            sunMesh = new THREE.Mesh(sunGeometry, sunMaterial); 
+            scene.add(sunMesh);
+
+            // Earth
+            var earthGeometry, earthMaterial, earthMesh;
+            earthGeometry = new THREE.SphereGeometry(25, 50, 50); 
+            earthMaterial = new THREE.MeshStandardMaterial(
+                { 
+                wireframe: false 
+                } 
+            ); 
+            earthMesh = new THREE.Mesh(earthGeometry, earthMaterial); 
+            scene.add(earthMesh);
+
+            // Moon
+            var moonGeometry, moonMaterial, moonMesh;
+            moonGeometry = new THREE.SphereGeometry(5, 40, 20);
+            moonMaterial = new THREE.MeshStandardMaterial(
+                {
+                wireframe: false 
+                } 
+            ); 
+            moonMesh = new THREE.Mesh(moonGeometry, moonMaterial); 
+            scene.add(moonMesh);
+        </script>
+    </body>
+</html>
