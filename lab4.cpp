@@ -9,7 +9,7 @@ using namespace cv;
 using namespace std;
 
 // Mat declarations
-Mat img, img_g, img_c, img_h, img_h_py, img_h_py_hoz;
+Mat img, img_g, img_c, img_h, img_h_py, img_h_py_hoz, img_poly;
 
 // Name for OTSU Window
 const string w1_name = "Canny transformation";
@@ -19,6 +19,8 @@ const string w2_name = "Probabilistic Hough Lines";
 const string w3_name = "Long Lines";
 // Name for Binary Window
 const string w4_name = "Horizontal Lines";
+// Name for Binary Window
+const string w5_name = "Polynomial Line";
 
 int main( int argc, char *argv[]){
     // Default name to nothing so file read will not fail if not overwritten
@@ -50,7 +52,8 @@ int main( int argc, char *argv[]){
     // Convert the original Image to Gray
     cvtColor(img, img_g, COLOR_BGR2GRAY);
 
-    Canny(img_g, img_c, 50, 200, 3);
+    threshold(img_g, img_g, 122, 255, THRESH_BINARY);
+    Canny(img, img_c, 255/3, 255, 3);
 
     // Show output of canny in window
     imshow(w1_name, img_c);
@@ -58,6 +61,7 @@ int main( int argc, char *argv[]){
     img_h = img.clone();
     img_h_py = img.clone();
     img_h_py_hoz = img.clone();
+    img_poly = img.clone();
 
     vector<Vec4i> lines_h; // will hold the results of the detection
     HoughLinesP(img_c, lines_h, 1, CV_PI/180, 50, 50, 10 ); // runs the actual detection
@@ -118,14 +122,16 @@ int main( int argc, char *argv[]){
         points_h_py_hoz.push_back(p2);
     }
 
-    vector<double> out;
-    out = fitPoly(points_h_py_hoz, 2);
-    cout << out.size()<< " " << out[1];
-
-    // Mat outMat = Mat( out );
+    vector<double> coeffs;
+    coeffs = fitPoly(points_h_py_hoz, 2);
+    for( size_t i = 0; i < img_poly.cols; i++ )
+    {
+        Point point = pointAtX(coeffs, i);
+        circle(img_poly, point, 0, (0, 0, 255), -1);
+    }
 
     // Show output of thresholding in window
-    // imshow(w4_name, outMat);
+    imshow(w5_name, img_poly);
 
     // Wait for user input so doesn't end straight away
     waitKey(0);
